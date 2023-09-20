@@ -1,6 +1,5 @@
 import sqlite3
 from utils.time import getSessionArray, weekdayCode
-from utils.csv import writeData
 
 def getTimeData():
   con = sqlite3.connect("data.db")
@@ -11,7 +10,6 @@ def getTimeData():
   res = req.fetchall()
   
   datas = []
-  
   for course in res:
     sessionArray = getSessionArray(course["time"])
     if len(sessionArray) > 0:
@@ -26,5 +24,4 @@ def getTimeData():
         "question": f'課程代碼為{course["id"][4:-1]}，由{course["teacher"]}教授所開設的{course["name"]}上課時間是甚麼時候？',
         "answer": f'{timeStr}'
       })
-
-  writeData("dataset.csv", datas)
+  return datas
