@@ -4,7 +4,7 @@ from langchain.schema import Document
 from langchain.llms import HuggingFacePipeline
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig, pipeline, BitsAndBytesConfig
 from utils.prompt import get_prompt
 from utils.time import getSessionArray, weekdayCode
 import fire, torch, sqlite3
@@ -35,7 +35,7 @@ def dict_factory(cursor, row):
   return ClassDocument(d)
 
 class CourseLangChain():
-  def __init__(self, dataFiles="data.db", k=10) -> None:
+  def __init__(self, dataFiles="data.db", load_in_4bit=False, k=10) -> None:
     
     # Model Name Defination
     embeddingModelName = "shibing624/text2vec-base-chinese"
@@ -55,8 +55,22 @@ class CourseLangChain():
     vectorStore = FAISS.from_documents(res, embedding=embeddings)
     
     # RetrievalQA Requirements
+    nf4_config = BitsAndBytesConfig(
+      load_in_4bit=True,
+      bnb_4bit_quant_type="nf4",
+      bnb_4bit_use_double_quant=True,
+      bnb_4bit_compute_dtype=torch.bfloat16
+    )
+    nf8_config = BitsAndBytesConfig(
+      load_in_8bit=True
+    )
+    
     tokenizer = AutoTokenizer.from_pretrained(transformerModelName)
-    model = AutoModelForCausalLM.from_pretrained(transformerModelName, device_map='auto', torch_dtype=torch.float16, load_in_8bit=True)
+    model = AutoModelForCausalLM.from_pretrained(
+      transformerModelName,
+      device_map='auto',
+      quantization_config=nf4_config if load_in_4bit else nf8_config
+    )
     retriever = vectorStore.as_retriever(search_kwargs={"k": k})
     
     generationConfig = GenerationConfig(
@@ -88,12 +102,14 @@ class CourseLangChain():
   def query(self, query: str):
     # docs = self.retriever.get_relevant_documents(query)
     # res = str([doc.metadata["name"] for doc in docs])
-    
-    print(self.chain.combine_documents_chain.llm_chain.prompt.template)
+
     res = self.chain.run(query)
     
     return res
 
+def main(query="", k=10, load_in_4bit=False):
+  chain = CourseLangChain(k=10, load_in_4bit=load_in_4bit)
+  print(chain.query(query))
+
 if __name__ == "__main__":
-  chain = CourseLangChain()
-  fire.Fire(chain.query)
+  fire.Fire(main)
