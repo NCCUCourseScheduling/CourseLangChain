@@ -7,7 +7,17 @@ from langchain.prompts import PromptTemplate
 from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig, pipeline, BitsAndBytesConfig
 from utils.prompt import get_prompt
 from utils.time import getSessionArray, weekdayCode
-import fire, torch, sqlite3
+import fire, torch, sqlite3, logging
+
+logger = logging.getLogger('CourseLangchain')
+logger.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 class ClassDocument(Document):
   def __init__(self, content: dict) -> None:
@@ -35,12 +45,12 @@ def dict_factory(cursor, row):
   return ClassDocument(d)
 
 class CourseLangChain():
-  def __init__(self, dataFiles="data.db", load_in_4bit=False, k=10) -> None:
+  def __init__(self, dataFiles="data.db", embeddingModel="shibing624/text2vec-base-chinese", transformerModel="ziqingyang/chinese-alpaca-2-13b", load_in_4bit=False) -> None:
     
     # Model Name Defination
-    embeddingModelName = "shibing624/text2vec-base-chinese"
-    transformerModelName = "FlagAlpha/Llama2-Chinese-13b-Chat"
-    instruction = """{context}\n\nQuestion: {question}"""
+    instruction = """Context:\n{context}\n\nQuestion: {question}\nAnswer: """
+    prompt_template = get_prompt(instruction)
+    logger.info("Prompt Template:\n" + prompt_template)
     
     # Create sqlite connection and query all courses
     con = sqlite3.connect(dataFiles)
@@ -51,8 +61,9 @@ class CourseLangChain():
     res = req.fetchall()
     
     # Transform into embedding vector and store to vector store
-    embeddings = HuggingFaceEmbeddings(model_name=embeddingModelName)
+    embeddings = HuggingFaceEmbeddings(model_name=embeddingModel)
     vectorStore = FAISS.from_documents(res, embedding=embeddings)
+    logger.info("Vector store ready.")
     
     # RetrievalQA Requirements
     nf4_config = BitsAndBytesConfig(
@@ -65,13 +76,13 @@ class CourseLangChain():
       load_in_8bit=True
     )
     
-    tokenizer = AutoTokenizer.from_pretrained(transformerModelName)
+    tokenizer = AutoTokenizer.from_pretrained(transformerModel, legacy = False)
     model = AutoModelForCausalLM.from_pretrained(
-      transformerModelName,
+      transformerModel,
       device_map='auto',
       quantization_config=nf4_config if load_in_4bit else nf8_config
     )
-    retriever = vectorStore.as_retriever(search_kwargs={"k": k})
+    retriever = vectorStore.as_retriever(search_kwargs={"k": 10})
     
     generationConfig = GenerationConfig(
       return_full_text=True,
@@ -80,14 +91,13 @@ class CourseLangChain():
     )
   
     hfPipeline = pipeline(
-        model=model, tokenizer=tokenizer,
-        task='text-generation',
-        generation_config=generationConfig
+      model=model, tokenizer=tokenizer,
+      task='text-generation',
+      generation_config=generationConfig
     )
-    llm = HuggingFacePipeline(pipeline=hfPipeline)
-
-    prompt_template = get_prompt(instruction)
+    logger.info("Pipeline ready.")
     
+    llm = HuggingFacePipeline(pipeline=hfPipeline)
     self.chain = RetrievalQA.from_chain_type(
       llm=llm, chain_type='stuff',
       retriever=retriever,
@@ -98,6 +108,7 @@ class CourseLangChain():
         ),
       },
     )
+    logger.info("Chain ready.")
     
   def query(self, query: str):
     # docs = self.retriever.get_relevant_documents(query)
@@ -107,9 +118,12 @@ class CourseLangChain():
     
     return res
 
-def main(query="", k=10, load_in_4bit=False):
-  chain = CourseLangChain(k=10, load_in_4bit=load_in_4bit)
-  print(chain.query(query))
+def main(embeddingModel="shibing624/text2vec-base-chinese", transformerModel="ziqingyang/chinese-alpaca-2-13b", load_in_4bit=False):
+  chain = CourseLangChain(embeddingModel=embeddingModel, transformerModel=transformerModel, load_in_4bit=load_in_4bit)
+  while True:
+    query = input("User: ")
+    res = chain.query(query)
+    print("Bot: {}".format(res))
 
 if __name__ == "__main__":
   fire.Fire(main)
