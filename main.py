@@ -1,13 +1,16 @@
+import threading, sqlite3, logging
+import fire
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.schema import Document
-from langchain.llms import HuggingFacePipeline
+from langchain.llms.llamacpp import LlamaCpp
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig, pipeline, BitsAndBytesConfig
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from utils.prompt import get_prompt
 from utils.time import getSessionArray, weekdayCode
-import fire, torch, sqlite3, logging
+from utils.callback import ChainStreamHandler
 
 logger = logging.getLogger('CourseLangchain')
 logger.setLevel(logging.DEBUG)
@@ -45,7 +48,7 @@ def dict_factory(cursor, row):
   return ClassDocument(d)
 
 class CourseLangChain():
-  def __init__(self, dataFiles="data.db", embeddingModel="shibing624/text2vec-base-chinese", transformerModel="ziqingyang/chinese-alpaca-2-13b", load_in_4bit=False) -> None:
+  def __init__(self, dataFiles="data.db", embeddingModel="shibing624/text2vec-base-chinese", modelFile="model/chinese-alpaca-2-13b.Q8_0.gguf", cli=False) -> None:
     
     # Model Name Defination
     instruction = """Context:\n{context}\n\nQuestion: {question}\nAnswer: """
@@ -66,38 +69,20 @@ class CourseLangChain():
     logger.info("Vector store ready.")
     
     # RetrievalQA Requirements
-    nf4_config = BitsAndBytesConfig(
-      load_in_4bit=True,
-      bnb_4bit_quant_type="nf4",
-      bnb_4bit_use_double_quant=True,
-      bnb_4bit_compute_dtype=torch.bfloat16
-    )
-    nf8_config = BitsAndBytesConfig(
-      load_in_8bit=True
-    )
-    
-    tokenizer = AutoTokenizer.from_pretrained(transformerModel, legacy = False)
-    model = AutoModelForCausalLM.from_pretrained(
-      transformerModel,
-      device_map='auto',
-      quantization_config=nf4_config if load_in_4bit else nf8_config
-    )
     retriever = vectorStore.as_retriever(search_kwargs={"k": 10})
     
-    generationConfig = GenerationConfig(
-      return_full_text=True,
-      temperature=0.0,  # 'randomness' of outputs, 0.0 is the min and 1.0 the max
-      max_new_tokens=512,  # mex number of tokens to generate in the output
-    )
-  
-    hfPipeline = pipeline(
-      model=model, tokenizer=tokenizer,
-      task='text-generation',
-      generation_config=generationConfig
-    )
-    logger.info("Pipeline ready.")
+    self.handler = ChainStreamHandler() if not cli else StreamingStdOutCallbackHandler()
     
-    llm = HuggingFacePipeline(pipeline=hfPipeline)
+    llm = LlamaCpp(
+      model_path=modelFile,
+      callback_manager=CallbackManager([self.handler]),
+      n_gpu_layers=50,
+      n_batch=512,
+      n_ctx=4096,
+      f16_kv=True,
+      verbose=True,  # Verbose is required to pass to the callback manager
+    )
+    
     self.chain = RetrievalQA.from_chain_type(
       llm=llm, chain_type='stuff',
       retriever=retriever,
@@ -111,19 +96,18 @@ class CourseLangChain():
     logger.info("Chain ready.")
     
   def query(self, query: str):
-    # docs = self.retriever.get_relevant_documents(query)
-    # res = str([doc.metadata["name"] for doc in docs])
+    def async_run():
+      self.chain.run(query)
+    thread = threading.Thread(target=async_run)
+    thread.start()
+    return self.handler.generate_tokens()
 
-    res = self.chain.run(query)
-    
-    return res
-
-def main(embeddingModel="shibing624/text2vec-base-chinese", transformerModel="ziqingyang/chinese-alpaca-2-13b", load_in_4bit=False):
-  chain = CourseLangChain(embeddingModel=embeddingModel, transformerModel=transformerModel, load_in_4bit=load_in_4bit)
+def main():
+  chain = CourseLangChain(cli=True)
   while True:
-    query = input("User: ")
-    res = chain.query(query)
-    print("Bot: {}".format(res))
-
+    query = input("User:")
+    print("Bot:")
+    chain.chain.run(query)
+  
 if __name__ == "__main__":
   fire.Fire(main)
