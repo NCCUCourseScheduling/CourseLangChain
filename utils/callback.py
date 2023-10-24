@@ -1,4 +1,4 @@
-import sys
+import json
 from typing import Any, Dict, List
 
 from langchain.callbacks.base import BaseCallbackHandler
@@ -12,7 +12,7 @@ class ChainStreamHandler(BaseCallbackHandler):
     def __init__(self):
         self.tokens = []
         # 记得结束后这里置true
-        self.finish = False
+        self.finish = True
     
     def on_llm_start(
         self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
@@ -34,8 +34,8 @@ class ChainStreamHandler(BaseCallbackHandler):
 
     def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
         """Run when LLM ends running."""
+        self.tokens.append("SPECIAL_END_TOKEN")
         self.finish = True
-        print("end")
 
     def on_llm_error(self, error: BaseException, **kwargs: Any) -> None:
         """Run when LLM errors."""
@@ -78,6 +78,7 @@ class ChainStreamHandler(BaseCallbackHandler):
         while not self.finish or self.tokens:
             if self.tokens:
                 data = self.tokens.pop(0)
-                yield data
+                res = "data: {}\n\n".format(json.dumps({"data": data}))
+                yield res
             else:
                 pass

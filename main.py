@@ -76,7 +76,7 @@ class CourseLangChain():
     llm = LlamaCpp(
       model_path=modelFile,
       callback_manager=CallbackManager([self.handler]),
-      n_gpu_layers=50,
+      n_gpu_layers=43,
       n_batch=512,
       n_ctx=4096,
       f16_kv=True,

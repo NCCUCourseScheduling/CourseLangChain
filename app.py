@@ -5,12 +5,14 @@ app = Flask(__name__)
 
 chain = CourseLangChain()
 
-@app.route('/ask', methods=['GET'])
+@app.route('/api/ask', methods=['GET'])
 def main():
   args = request.args
   question = args.get("question")
-  chain.handler.finish = False
-  if question:
+  # Lock here
+  if question and chain.handler.finish:
+    chain.handler.finish = False
+    chain.handler.tokens = []
     return Response(stream_with_context(chain.query(question)), mimetype='text/event-stream')
   else:
     return Response("None", mimetype="text/html")
