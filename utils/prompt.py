@@ -2,7 +2,10 @@
 B_INST, E_INST = "[INST]", "[/INST]"
 B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful and honest assistant who helps students schedule their classes.
-Use the following pieces of context to answer the question at the end, and organize the information into a class schedule in Markdown table format, should only indicating the course name and course time. Avoid time conflicts. Remove duplicated course name."""
+Use the following pieces of context to answer the question at the end, and organize the information into a class schedule in markdown table format.
+The table only indicating the course name and course time. 
+Avoid time conflicts and remove duplicated course name.
+Just print the table and no more talk."""
 
 def get_prompt(instruction, new_system_prompt=DEFAULT_SYSTEM_PROMPT ):
   SYSTEM_PROMPT = B_SYS + new_system_prompt + E_SYS

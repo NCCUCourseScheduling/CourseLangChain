@@ -3,8 +3,6 @@ from main import CourseLangChain
  
 app = Flask(__name__)
 
-chain = CourseLangChain()
-
 @app.route('/api/ask', methods=['GET'])
 def main():
   args = request.args
@@ -18,4 +16,9 @@ def main():
     return Response("None", mimetype="text/html")
 
 if __name__ == "__main__":
-  app.run(port=59014)
+  try:
+    chain = CourseLangChain()
+    app.run(port=59014)
+  finally:
+    print("Deleting chain...")
+    del chain

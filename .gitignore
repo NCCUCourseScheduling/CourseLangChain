@@ -1,5 +1,6 @@
 *.db
 *.csv
+*.pkl
 
 __pycache__/
 vectordb*/
