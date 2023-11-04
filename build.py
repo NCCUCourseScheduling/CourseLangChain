@@ -38,7 +38,18 @@ def build(dataFile="data.db", pickleFile="vectorstore.pkl", embeddingModel="shib
   res = req.fetchall()
   
   embeddings = HuggingFaceEmbeddings(model_name=embeddingModel)
+
+  # initialize the faiss retriever
   vectorStore = FAISS.from_documents(res, embedding=embeddings)
+  faiss_retriever = vectorStore.as_retriever(search_kwargs={"k": 10})
+    
+  # initialize the bm25 retriever
+  bm25_retriever = BM25Retriever.from_documents(res, embedding=embeddings)
+  bm25_retriever.k = 10
+
+  # initialize the ensemble retriever
+  ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, faiss_retriever], weights=[0, 1])
+  #ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, faiss_retriever], weights=[0.5, 0.5])
   
   with open(pickleFile, "wb") as f:
     pickle.dump(vectorStore, f)
