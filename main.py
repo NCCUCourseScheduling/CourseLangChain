@@ -11,6 +11,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from utils.prompt import get_prompt
 from utils.time import getSessionArray, weekdayCode
 from utils.callback import ChainStreamHandler
+from utils.convert_voice import convert_voice
 
 logger = logging.getLogger('CourseLangchain')
 logger.setLevel(logging.DEBUG)
@@ -23,7 +24,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 class CourseLangChain():
-  def __init__(self, pickleFile="vectorstore.pkl", modelFile="model/chinese-alpaca-2-13b.Q8_0.gguf", cli=False) -> None:
+  def __init__(self, pickleFile="vectorstore.pkl", modelFile="../model/chinese-llama-2-7b.Q4_K_M.gguf", cli=False) -> None:
     
     # Model Name Defination
     instruction = """Context:\n{context}\n\nQuestion: {question}\nAnswer: """
@@ -70,7 +71,10 @@ class CourseLangChain():
 def main():
   chain = CourseLangChain(cli=True)
   while True:
-    query = input("User:")
+    # query = input("User:")
+    print("User:")
+    query = convert_voice()
+    print(query)
     print("Bot:")
     chain.chain.run(query)
   
