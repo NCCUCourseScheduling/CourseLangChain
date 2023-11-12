@@ -1,28 +1,49 @@
+import os
+import uuid
+import whisper
+from flask import Flask, request, Response, stream_with_context, jsonify, abort
 from main import CourseLangChain
-import chainlit as cl
 
-chain = CourseLangChain()
+UPLOAD_FOLDER = './uploads'
+ 
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-@cl.on_chat_start
+@app.route('/api/ask', methods=['GET'])
 def main():
+  args = request.args
+  question = args.get("question")
+  # Lock here
+  if question and chain.handler.finish:
+    chain.handler.finish = False
+    chain.handler.tokens = []
+    return Response(stream_with_context(chain.query(question)), mimetype='text/event-stream')
+  else:
+    return Response("None", mimetype="text/html")
 
-  # Store the chain in the user session
-  cl.user_session.set("llm_chain", chain)
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+  if request.method == 'POST':
+    # check if the post request has the file part
+    if 'file' not in request.files:
+      abort(500, "No file part")
+    file = request.files['file']
+    if file.filename == '':
+      abort(500, "No selected file")
+    id = uuid.uuid4()
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], f"{id}.mp3"))
+    result = model.transcribe(os.path.join(app.config['UPLOAD_FOLDER'], f"{id}.mp3"))
+    return {"text": result["text"]}
 
+@app.errorhandler(500)
+def custom400(error):
+    return jsonify({'message': error.description})
 
-@cl.on_message
-async def main(message: str):
-    # Retrieve the chain from the user session
-    _chain = cl.user_session.get("llm_chain")  # type: LLMChain
-
-    # Call the chain asynchronously
-    res = await cl.make_async(_chain.query)(
-        message
-    )
-
-    # Do any post processing here
-
-    # "res" is a Dict. For this chain, we get the response by reading the "text" key.
-    # This varies from chain to chain, you should check which key to read.
-    await cl.Message(content=res).send()
-    return _chain
+if __name__ == "__main__":
+  try:
+    model = whisper.load_model("medium")
+    chain = CourseLangChain()
+    app.run(port=59014)
+  finally:
+    print("Deleting chain...")
+    del chain

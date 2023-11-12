@@ -1,5 +1,9 @@
 *.db
 *.csv
+*.pkl
 
 __pycache__/
 vectordb*/
+
+model
+uploads

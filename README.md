@@ -1,22 +1,23 @@
 # CourseLangChain
 
 Requirements:
-- GPU RAM >= 12G
 - Python 3.11
+- `data.db` is required
+- model needs to be `gguf`, and place the model in `model/` and specify in the code.
 
-`data.db` is required
 
 ### Installation
 ```sh
 python -m pip install -r requirement.txt
 ```
+Use your prefered way to install `llama-cpp-python`, see [here](https://github.com/abetlen/llama-cpp-python) to learn more.
 
 ## Run
 ```sh
-python main.py -q "Your question"
+python main.py
 ```
 
-### Run with chainlit
+### Run with flask
 ```sh
- python -m chainlit run app.py -h --port xxxxx
+ python app.py
  ```
