@@ -33,9 +33,6 @@ class CourseLangChain():
     with open(pickleFile, "rb") as f:
       vectorstore: VectorStore = pickle.load(f)
     
-    # RetrievalQA Requirements
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
-    
     self.handler = ChainStreamHandler() if not cli else StreamingStdOutCallbackHandler()
     
     llm = LlamaCpp(
