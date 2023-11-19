@@ -1,4 +1,7 @@
 ## Default LLaMA-2 prompt style
+from langchain.prompts import PromptTemplate
+from langchain.memory import ConversationBufferMemory
+
 B_INST, E_INST = "[INST]", "[/INST]"
 B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 # DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful and honest assistant who helps students schedule their classes.
@@ -16,4 +19,5 @@ Express your answer in Markdown format only, and make sure it contains only Mark
 def get_prompt(instruction, new_system_prompt=DEFAULT_SYSTEM_PROMPT ):
   SYSTEM_PROMPT = B_SYS + new_system_prompt + E_SYS
   prompt_template =  B_INST + SYSTEM_PROMPT + instruction + E_INST
-  return prompt_template
+  memory = ConversationBufferMemory(memory_key="chat_history")
+  return prompt_template, memory
