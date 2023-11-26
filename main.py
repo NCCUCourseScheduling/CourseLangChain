@@ -24,7 +24,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 class CourseLangChain():
-  def __init__(self, pickleFile="vectorstore.pkl", modelFile="model/chinese-alpaca-2-13b.Q8_0.gguf", cli=False) -> None:
+  def __init__(self, pickleFile="vectorstore.pkl", modelFile="model/chinese-alpaca-2-7b.Q8_0.gguf", cli=False) -> None:
     
     # Model Name Defination
     instruction = """Context:\n{context}\n\nQuestion: {question}\nAnswer: """
@@ -74,6 +74,8 @@ def main():
     query = input("User:")
     negation_detector = NegationDetector(verbose=True)
     new_query = negation_detector.find_negation_sentences(query)
+    print("positive_query:")
+    print(new_query)
     print("Bot:")
     chain.chain.run(new_query)
   

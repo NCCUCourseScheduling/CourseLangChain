@@ -19,5 +19,5 @@ Express your answer in Markdown format only, and make sure it contains only Mark
 def get_prompt(instruction, new_system_prompt=DEFAULT_SYSTEM_PROMPT ):
   SYSTEM_PROMPT = B_SYS + new_system_prompt + E_SYS
   prompt_template =  B_INST + SYSTEM_PROMPT + instruction + E_INST
-  memory = ConversationBufferMemory(memory_key="chat_history")
-  return prompt_template, memory
+  #memory = ConversationBufferMemory(memory_key="chat_history")
+  return prompt_template
