@@ -11,6 +11,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from utils.prompt import get_prompt
 from utils.time import getSessionArray, weekdayCode
 from utils.callback import ChainStreamHandler
+from detector import NegationDetector
 
 logger = logging.getLogger('CourseLangchain')
 logger.setLevel(logging.DEBUG)
@@ -68,8 +69,10 @@ def main():
   chain = CourseLangChain(cli=True)
   while True:
     query = input("User:")
+    negation_detector = NegationDetector(verbose=True)
+    new_query = negation_detector.find_negation_sentences(query)
     print("Bot:")
-    chain.chain.run(query)
+    chain.chain.run(new_query)
   
 if __name__ == "__main__":
   fire.Fire(main)
