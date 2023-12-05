@@ -34,7 +34,7 @@ def dict_factory(cursor, row):
 def document_factory(cursor, row):
   return ClassDocument(dict_factory(cursor, row))
 
-def build(dataFile="data.db", vectorStorePkl="vectorstore.pkl", embeddingModel="shibing624/text2vec-base-chinese"):
+def build(dataFile="data.db", vectorStorePkl="vectorstore.pkl", embeddingModel="bert-base-multilingual-cased"):
   con = sqlite3.connect(dataFile)
   con.row_factory = document_factory
   cursor = con.cursor()

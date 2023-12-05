@@ -4,7 +4,7 @@ from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores.faiss import VectorStore
 from langchain.schema import Document
 from langchain.llms.llamacpp import LlamaCpp
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain.prompts import PromptTemplate
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
@@ -12,6 +12,8 @@ from utils.prompt import get_prompt
 from utils.time import getSessionArray, weekdayCode
 from utils.callback import ChainStreamHandler
 from detector import NegationDetector
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.agents import Tool, initialize_agent
 
 logger = logging.getLogger('CourseLangchain')
 logger.setLevel(logging.DEBUG)
@@ -28,14 +30,17 @@ class CourseLangChain():
     
     # Model Name Defination
     instruction = """Context:\n{context}\n\nQuestion: {question}\nAnswer: """
+    #print("Instruction:")
+    #print(instruction)
     prompt_template = get_prompt(instruction)
     logger.info("Prompt Template:\n" + prompt_template)
-    
+
     with open(pickleFile, "rb") as f:
       vectorstore: VectorStore = pickle.load(f)
     
     # RetrievalQA Requirements
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
+    #retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
+    retriever = vectorstore
     
     self.handler = ChainStreamHandler() if not cli else StreamingStdOutCallbackHandler()
     
@@ -49,21 +54,48 @@ class CourseLangChain():
       verbose=True,  # Verbose is required to pass to the callback manager
     )
     
-    self.chain = RetrievalQA.from_chain_type(
+    conversational_memory = ConversationBufferWindowMemory(
+      memory_key="chat_history",
+      k=5,
+      return_messages=True,
+    )
+
+    self.qa = RetrievalQA.from_chain_type(
       llm=llm, chain_type='stuff',
       retriever=retriever,
       chain_type_kwargs={
-        "prompt": PromptTemplate(
+       "prompt": PromptTemplate(
           template=prompt_template,
-          input_variables=["context", "question"],
-        ),
-      },
+          input_variables=["context", "question"],),
+     },
     )
     logger.info("Chain ready.")
+
+    self.tools = [
+      Tool(
+        name='Knowledge Base',
+        func=self.qa.run,
+        description=(
+          'use this tool to answer questions about course information.'
+          
+        ),
+      )
+    ]
+
+    self.agent = initialize_agent(
+      agent='chat-conversational-react-description',
+      tools=self.tools,
+      llm=llm,
+      verbose=True,
+      max_iterations=3,
+      early_stopping_method='generate',
+      memory=conversational_memory,
+      handle_parsing_errors="Check your output and make sure it is in correct format.",
+    )
     
   def query(self, query: str):
     def async_run():
-      self.chain.run(query)
+      self.agent(query)
     thread = threading.Thread(target=async_run)
     thread.start()
     return self.handler.generate_tokens()
@@ -77,7 +109,7 @@ def main():
     print("positive_query:")
     print(new_query)
     print("Bot:")
-    chain.chain.run(new_query)
+    chain.agent(new_query)
   
 if __name__ == "__main__":
   fire.Fire(main)
