@@ -79,7 +79,7 @@ class NegationDetector:
 negation_detector = NegationDetector(verbose=True)
 text_to_check = "星期一週三不排課、星期二 10 點後不排、星期四 12 點之前不排、星期五下午不排課，禮拜三下午不行，禮拜四早上以前不要"
 result_text = negation_detector.find_negation_sentences(text_to_check)
-print("original:")
-print(text_to_check)
-print("result:")
-print(result_text)
+#print("original:")
+#print(text_to_check)
+#print("result:")
+#print(result_text)
