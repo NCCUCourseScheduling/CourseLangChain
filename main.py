@@ -12,6 +12,7 @@ from utils.prompt import get_prompt
 from utils.time import getSessionArray, weekdayCode
 from utils.callback import ChainStreamHandler
 from detector import NegationDetector
+from langchain.retrievers import EnsembleRetriever
 
 logger = logging.getLogger('CourseLangchain')
 logger.setLevel(logging.DEBUG)
@@ -28,11 +29,11 @@ class CourseLangChain():
     
     # Model Name Defination
     instruction = """Context:\n{context}\n\nQuestion: {question}\nAnswer: """
-    prompt_template = get_prompt(instruction)
+    prompt_template, memory = get_prompt(instruction)
     logger.info("Prompt Template:\n" + prompt_template)
     
     with open(pickleFile, "rb") as f:
-      vectorstore: VectorStore = pickle.load(f)
+      retriever: EnsembleRetriever = pickle.load(f)
     
     self.handler = ChainStreamHandler() if not cli else StreamingStdOutCallbackHandler()
     
