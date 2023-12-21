@@ -21,3 +21,6 @@ python main.py
 ```sh
  python app.py
  ```
+
+***
+[Report](https://docs.google.com/document/d/1CkelC_x8B_QnVHEiIZisG1d8BJwXoYg02lqaqgbQlFY/edit?usp=sharing) 
