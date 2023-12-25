@@ -25,3 +25,5 @@ python main.py
 ***
 ## Final Report
 Objective, System Architecture, Research Methods, Results, Future Outlook : [report](https://docs.google.com/document/d/1CkelC_x8B_QnVHEiIZisG1d8BJwXoYg02lqaqgbQlFY/edit?usp=sharing) 
+![image](https://github.com/NCCUCourseScheduling/CourseLangChain/assets/74034659/ac8269dc-1765-48f6-a1bd-fcd8fc09a383)
+
