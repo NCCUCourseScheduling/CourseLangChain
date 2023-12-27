@@ -20,7 +20,8 @@ class ClassDocument(Document):
     else:
       timeStr = "未定"
     
-    contentStr = "課程名稱: {}\n課程內容: {}\n上課時間: {}\n老師名稱: {}".format(content["name"], content["objective"], timeStr, content["teacher"])
+    #contentStr = "課程名稱: {}\n課程內容: {}\n上課時間: {}\n老師名稱: {}".format(content["name"], content["objective"], timeStr, content["teacher"])
+    contentStr = "課程名稱是{}, 課程內容有{}, 上課時間是{}, 這堂課的老師是{}".format(content["name"], content["objective"], timeStr, content["teacher"])
     
     self.page_content = contentStr
     self.metadata = content
@@ -34,7 +35,7 @@ def dict_factory(cursor, row):
 def document_factory(cursor, row):
   return ClassDocument(dict_factory(cursor, row))
 
-def build(dataFile="data.db", vectorStorePkl="vectorstore.pkl", embeddingModel="shibing624/text2vec-base-chinese"):
+def build(dataFile="data.db", vectorStorePkl="vectorstore.pkl", embeddingModel="bert-base-multilingual-cased"):
   con = sqlite3.connect(dataFile)
   con.row_factory = document_factory
   cursor = con.cursor()
