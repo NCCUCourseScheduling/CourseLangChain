@@ -5,7 +5,8 @@ from langchain.callbacks.manager import (
     AsyncCallbackManagerForRetrieverRun,
     CallbackManagerForRetrieverRun,
 )
-from langchain.pydantic_v1 import root_validator
+#from langchain.pydantic.v1 import root_validator
+from pydantic import root_validator
 from langchain.schema import BaseRetriever, Document
 
 class EnsembleRetriever(OriginEnsembleRetriever):
@@ -16,5 +17,5 @@ class EnsembleRetriever(OriginEnsembleRetriever):
         run_manager: CallbackManagerForRetrieverRun,
     ) -> List[Document]:
     res = super()._get_relevant_documents(query, run_manager=run_manager)
-    print([r.page_content for r in res])
+    #print([r.page_content for r in res])
     return res
