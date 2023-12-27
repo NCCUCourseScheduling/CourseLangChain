@@ -26,11 +26,11 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 class CourseLangChain():
-  def __init__(self, pickleFile="vectorstore.pkl", modelFile="model/chinese-alpaca-2-7b.Q8_0.gguf", cli=False) -> None:
+  def __init__(self, pickleFile="vectorstore.pkl", modelFile="model/chinese-alpaca-2-13b.Q8_0.gguf", cli=False) -> None:
     
     # Model Name Defination
     instruction = """Context:\n{context}\n\nQuestion: {question}\nAnswer: """
-    prompt_template, memory = get_prompt(instruction)
+    prompt_template = get_prompt(instruction)
     logger.info("Prompt Template:\n" + prompt_template)
 
     with open(pickleFile, "rb") as f:
@@ -93,19 +93,19 @@ class CourseLangChain():
     """
   def query(self, query: str):
     def async_run():
-      self.agent(query)
+      self.chain.run(query)
     thread = threading.Thread(target=async_run)
     thread.start()
     return self.handler.generate_tokens()
   
 
   def save_to_history(self, user_query, bot_response):
-        self.chat_history.append((user_query, bot_response))
+    self.chat_history.append((user_query, bot_response))
 
   def combine_with_history(self, new_query):
-        combined_query = " ".join([f"User: {pair[0]} Bot: {pair[1]}" for pair in self.chat_history])
-        combined_query += f" User: {new_query}"
-        return combined_query
+    combined_query = " ".join([f"User: {pair[0]} Bot: {pair[1]}" for pair in self.chat_history])
+    combined_query += f" User: {new_query}"
+    return combined_query
 
 
 def main():

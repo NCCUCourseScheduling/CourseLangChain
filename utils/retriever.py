@@ -17,5 +17,5 @@ class EnsembleRetriever(OriginEnsembleRetriever):
         run_manager: CallbackManagerForRetrieverRun,
     ) -> List[Document]:
     res = super()._get_relevant_documents(query, run_manager=run_manager)
-    #print([r.page_content for r in res])
+    print([r.metadata["name"] for r in res])
     return res
