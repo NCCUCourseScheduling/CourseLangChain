@@ -29,6 +29,11 @@ python main.py
 Objective, System Architecture, Research Methods, Results, Future Outlook : 
 [report](https://docs.google.com/document/d/1CkelC_x8B_QnVHEiIZisG1d8BJwXoYg02lqaqgbQlFY/edit?usp=sharing) 
 
-
+## Demo
 ![image](https://github.com/NCCUCourseScheduling/CourseLangChain/assets/74034659/ac8269dc-1765-48f6-a1bd-fcd8fc09a383)
+
+## System Structure
+![image](https://github.com/NCCUCourseScheduling/CourseLangChain/assets/74034659/f23cecc2-b9c4-42c3-a684-f33c799d33e7)
+
+![image](https://github.com/NCCUCourseScheduling/CourseLangChain/assets/74034659/be50faa9-1baa-4fe6-8308-50eb76b1d45d)
 
