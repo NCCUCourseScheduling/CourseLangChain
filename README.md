@@ -35,7 +35,6 @@ Objective, System Architecture, Research Methods, Results, Future Outlook :
 ## System Structure
 ![image](https://github.com/NCCUCourseScheduling/CourseLangChain/assets/74034659/f23cecc2-b9c4-42c3-a684-f33c799d33e7)
 
-![image](https://github.com/NCCUCourseScheduling/CourseLangChain/assets/74034659/810d8110-a45a-4a5d-8156-c516d96533ef)
-
+![image](https://github.com/NCCUCourseScheduling/CourseLangChain/assets/74034659/eb04a8a1-557e-428b-80d0-fcb8497b5562)
 
 
