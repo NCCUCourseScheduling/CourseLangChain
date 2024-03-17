@@ -2,6 +2,8 @@
 
 [![](https://dcbadge.vercel.app/api/server/n8w5qE4xyA)](https://discord.gg/n8w5qE4xyA)
 
+Try [Frontend](https://github.com/NCCUCourseScheduling/CourseLangChain-frontend)!
+
 Requirements:
 - Python 3.11
 - `data.db` is required
