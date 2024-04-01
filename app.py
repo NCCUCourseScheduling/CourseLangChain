@@ -43,7 +43,7 @@ if __name__ == "__main__":
   try:
     model = whisper.load_model("medium")
     chain = CourseLangChain()
-    app.run(port=59014)
+    app.invoke(port=59014)
   finally:
     print("Deleting chain...")
     del chain

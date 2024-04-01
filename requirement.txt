@@ -1,4 +1,4 @@
-langchain==0.0.315
+langchain==0.1.0
 rank-bm25==0.2.2
 transformers==4.31.0
 chainlit==0.7.0
@@ -12,3 +12,4 @@ tokenizers==0.13.3
 accelerate==0.21.0
 llama_cpp_python==0.2.11
 openai-whisper==20231106
+sqlalchemy==2.0.29
