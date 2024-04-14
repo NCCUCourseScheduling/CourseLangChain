@@ -17,6 +17,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from dotenv import load_dotenv  
 import os
 
+#remember to add the .env file in order to use Langsmith API
 load_dotenv()
 
 logger = logging.getLogger('CourseLangchain')

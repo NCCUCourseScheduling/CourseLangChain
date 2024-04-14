@@ -24,6 +24,14 @@ python main.py
  python app.py
  ```
 
+### Langsmith
+```sh
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+LANGCHAIN_API_KEY="your_api_key"
+```
+In order to use Langsmith API, you need to create an .env file above.
+
 ***
 [Frontend Repository](https://github.com/NCCUCourseScheduling/CourseLangChain-frontend)!
 
