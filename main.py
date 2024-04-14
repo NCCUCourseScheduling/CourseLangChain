@@ -14,6 +14,10 @@ from utils.callback import ChainStreamHandler
 from detector import NegationDetector
 from langchain.retrievers import EnsembleRetriever
 from langchain.memory import ConversationBufferWindowMemory
+from dotenv import load_dotenv  
+import os
+
+load_dotenv()
 
 logger = logging.getLogger('CourseLangchain')
 logger.setLevel(logging.DEBUG)
