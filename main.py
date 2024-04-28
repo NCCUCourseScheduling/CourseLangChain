@@ -114,7 +114,7 @@ class CourseLangChain():
 
 
 def main():
-  chain = CourseLangChain(cli=True)
+  chain = CourseLangChain(cli=True, modelFile="../models/ggml-model-q4_k.gguf?download=true")
   while True:
     query = input("User:")
     negation_detector = NegationDetector(verbose=True)

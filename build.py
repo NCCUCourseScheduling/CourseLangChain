@@ -47,11 +47,11 @@ def build(dataFile="data.db", vectorStorePkl="vectorstore.pkl", embeddingModel="
 
   # initialize the faiss retriever
   vectorStore = FAISS.from_documents(res, embedding=embeddings)
-  faiss_retriever = vectorStore.as_retriever(search_kwargs={"k": 10})
+  faiss_retriever = vectorStore.as_retriever(search_kwargs={"k": 3})
     
   # initialize the bm25 retriever
   bm25_retriever = BM25Retriever.from_documents(res, embedding=embeddings)
-  bm25_retriever.k = 10
+  bm25_retriever.k = 3
 
   # initialize the ensemble retriever
   # ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, faiss_retriever], weights=[0, 1])
