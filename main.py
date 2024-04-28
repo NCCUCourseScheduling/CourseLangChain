@@ -1,7 +1,7 @@
 import threading, sqlite3, logging, pickle
 import fire
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
-from langchain.vectorstores.faiss import VectorStore
+from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores.faiss import VectorStore
 from langchain.schema import Document
 from langchain.llms.llamacpp import LlamaCpp
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
@@ -14,6 +14,11 @@ from utils.callback import ChainStreamHandler
 from detector import NegationDetector
 from langchain.retrievers import EnsembleRetriever
 from langchain.memory import ConversationBufferWindowMemory
+from dotenv import load_dotenv  
+import os
+
+#remember to add the .env file in order to use Langsmith API
+load_dotenv()
 
 logger = logging.getLogger('CourseLangchain')
 logger.setLevel(logging.DEBUG)
@@ -26,7 +31,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 class CourseLangChain():
-  def __init__(self, pickleFile="vectorstore.pkl", modelFile="model/chinese-alpaca-2-13b.Q8_0.gguf", cli=False) -> None:
+  def __init__(self, pickleFile="vectorstore.pkl", modelFile="model/chinese-alpaca-2-7b.Q8_0.gguf", cli=False) -> None:
     
     # Model Name Defination
     instruction = """Context:\n{context}\n\nQuestion: {question}\nAnswer: """
@@ -93,7 +98,7 @@ class CourseLangChain():
     """
   def query(self, query: str):
     def async_run():
-      self.chain.run(query)
+      self.chain.invoke(query)
     thread = threading.Thread(target=async_run)
     thread.start()
     return self.handler.generate_tokens()
@@ -119,8 +124,7 @@ def main():
     print("positive_query:")
     print(new_query_with_history)
     print("Bot:")
-    #chain.chain.run(new_query)
-    bot_response = chain.chain.run(new_query_with_history)
+    bot_response = chain.chain.invoke(new_query_with_history)
     chain.save_to_history(new_query, bot_response)
 
   
