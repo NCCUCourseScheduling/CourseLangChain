@@ -15,6 +15,20 @@ Requirements:
 ```
 Add prefix or set environment variable to install  `llama-cpp-python`, see [here](https://github.com/abetlen/llama-cpp-python) to learn more.
 
+Add `MODEL_PATH` in `.env` to specify your model file
+
+```
+MODEL_PATH="path/to/model"
+```
+
+If you want to monitor in LangSmith, add config in the `.env`
+
+```
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+LANGCHAIN_API_KEY="api-key"
+```
+
 ## Run
 ```sh
 python main.py
@@ -22,16 +36,8 @@ python main.py
 
 ### Run with flask
 ```sh
- python app.py
- ```
-
-### Langsmith
-```sh
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
-LANGCHAIN_API_KEY="your_api_key"
+python app.py
 ```
-In order to use Langsmith API, you need to create an .env file above.
 
 ***
 [Frontend Repository](https://github.com/NCCUCourseScheduling/CourseLangChain-frontend)!
