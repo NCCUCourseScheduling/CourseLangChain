@@ -227,5 +227,10 @@ dependencies:
   - zstd=1.5.5=hfc55251_0
   - pip:
       - diskcache==5.6.3
+      - fastapi==0.110.3
+      - h11==0.14.0
       - llama-cpp-python==0.2.65
       - rank-bm25==0.2.2
+      - starlette==0.37.2
+      - uvicorn==0.29.0
+      - whisper==1.1.10
