@@ -8,7 +8,8 @@ def get_prompt():
     The table should have three columns: name, time, teacher. Please align the entries to the left.
     Remember to respond with a table, and NOTHING else.<|eot_id|><|start_header_id|>user<|end_header_id|>
     Question: {question} 
-    Context: {context} 
+    Context: 
+    {context} 
     Answer: <|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
         input_variables=["question", "context"],
     )
