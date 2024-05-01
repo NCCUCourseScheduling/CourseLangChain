@@ -34,7 +34,12 @@ LANGCHAIN_API_KEY="api-key"
 python main.py
 ```
 
-### Run with flask
+### Run with streamlit
+```sh
+streamlit run streamlit.py
+```
+
+### Run with fastapi
 ```sh
 python app.py
 ```
