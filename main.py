@@ -44,18 +44,11 @@ class CourseLangChain:
         with open(pickleFile, "rb") as f:
             retriever: EnsembleRetriever = pickle.load(f)
 
-        self.handler = (
-            ChainStreamHandler() if not cli else StreamingStdOutCallbackHandler()
-        )
-
         model = LlamaCpp(
             model_path=modelFile,
-            callback_manager=CallbackManager([self.handler]),
-            n_gpu_layers=43,
-            n_batch=512,
-            n_ctx=4096,
-            f16_kv=True,
-            verbose=True,  # Verbose is required to pass to the callback manager
+            n_gpu_layers=-1,
+            seed=1337, 
+            n_ctx=4096
         )
 
         def format_docs(docs):
@@ -73,12 +66,13 @@ class CourseLangChain:
         return self.chain.invoke(input)
 
 
-def main():
+async def main():
     chain = CourseLangChain(cli=True)
     while True:
         query = input("User:")
         print("Bot:")
-        chain.invoke(query)
+        async for chunk in chain.chain.astream(query):
+            print(chunk, end="", flush=True)
 
 
 if __name__ == "__main__":
