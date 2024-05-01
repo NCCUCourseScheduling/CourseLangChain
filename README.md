@@ -3,16 +3,17 @@
 [![](https://dcbadge.vercel.app/api/server/n8w5qE4xyA)](https://discord.gg/n8w5qE4xyA)
 
 Requirements:
-- Python 3.11
+- `python >= 3.11`
 - `data.db` is required
 - model needs to be `gguf`, and place the model in `model/` and specify in the code. Checkout `llamacpp` for more detail.
+- `mamba` or `conda` installed
 
 
 ### Installation
 ```sh
-python -m pip install -r requirement.txt
+ CMAKE_ARGS="-DLLAMA_CUDA=on" mamba env create -f environment.yml
 ```
-Use your prefered way to install `llama-cpp-python`, see [here](https://github.com/abetlen/llama-cpp-python) to learn more.
+Add prefix or set environment variable to install  `llama-cpp-python`, see [here](https://github.com/abetlen/llama-cpp-python) to learn more.
 
 ## Run
 ```sh
