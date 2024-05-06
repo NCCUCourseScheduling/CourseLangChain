@@ -5,21 +5,23 @@
 Requirements:
 - `python >= 3.11`
 - `data.db` is required
-- model needs to be `gguf`, and place the model in `model/` and specify in the code. Checkout `llamacpp` for more detail.
 - `mamba` or `conda` installed
+- `ollama` installed ([Github](https://github.com/ollama/ollama))
 
 
-### Installation
+## Installation
 ```sh
- CMAKE_ARGS="-DLLAMA_CUDA=on" mamba env create -f environment.yml
+mamba env create -f environment.yml
 ```
-Add prefix or set environment variable to install  `llama-cpp-python`, see [here](https://github.com/abetlen/llama-cpp-python) to learn more.
 
-Add `MODEL_PATH` in `.env` to specify your model file
+Add `MODEL` in `.env` to specify your model file
 
 ```
-MODEL_PATH="path/to/model"
+MODEL="your_modal_name"
 ```
+
+> [!IMPORTANT]
+> The environment file use cpu version of pytorch, if you have GPUs, install GPU version on your own.
 
 If you want to monitor in LangSmith, add config in the `.env`
 
@@ -44,8 +46,9 @@ streamlit run streamlit.py
 python app.py
 ```
 
-***
-[Frontend Repository](https://github.com/NCCUCourseScheduling/CourseLangChain-frontend)!
+## Frontend Repository
+
+**[CLick me](https://github.com/NCCUCourseScheduling/CourseLangChain-frontend)**
 
 ## Final Report
 Objective, System Architecture, Research Methods, Results, Future Outlook : 

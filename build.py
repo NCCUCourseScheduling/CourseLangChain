@@ -6,6 +6,8 @@ from langchain.schema import Document
 from utils.time import getSessionArray, weekdayCode
 from utils.retriever import EnsembleRetriever
 
+import torch
+
 class ClassDocument(Document):
   def __init__(self, content: dict) -> None:
     super().__init__(page_content=str(content), metadata=content)
@@ -44,22 +46,30 @@ def build(dataFile="data.db", vectorStorePkl="vectorstore.pkl", embeddingModel="
   req = cursor.execute("SELECT * FROM COURSE WHERE y = 112 AND s = 1")
   res = req.fetchall()
   
-  embeddings = HuggingFaceEmbeddings(model_name=embeddingModel)
-
-  # initialize the faiss retriever
-  vectorStore = FAISS.from_documents(res, embedding=embeddings)
-  faiss_retriever = vectorStore.as_retriever(search_kwargs={"k": 5})
-    
-  # initialize the bm25 retriever
-  bm25_retriever = BM25Retriever.from_documents(res, embedding=embeddings)
-  bm25_retriever.k = 5
-
-  # initialize the ensemble retriever
-  # ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, faiss_retriever], weights=[0, 1])
-  ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, faiss_retriever], weights=[0.5, 0.5])
+  if(torch.cuda.is_available()):
   
-  with open(vectorStorePkl, "wb") as f:
-    pickle.dump(ensemble_retriever, f)   
+    embeddings = HuggingFaceEmbeddings(model_name=embeddingModel)
+
+    # initialize the faiss retriever
+    vectorStore = FAISS.from_documents(res, embedding=embeddings)
+    faiss_retriever = vectorStore.as_retriever(search_kwargs={"k": 5})
+      
+    # initialize the bm25 retriever
+    bm25_retriever = BM25Retriever.from_documents(res)
+    bm25_retriever.k = 5
+
+    # initialize the ensemble retriever
+    # ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, faiss_retriever], weights=[0, 1])
+    ensemble_retriever = EnsembleRetriever(retrievers=[bm25_retriever, faiss_retriever], weights=[0.5, 0.5])
+    
+    with open(vectorStorePkl, "wb") as f:
+      pickle.dump(ensemble_retriever, f)
+  else:
+    bm25_retriever = BM25Retriever.from_documents(res)
+    bm25_retriever.k = 5
+    
+    with open(vectorStorePkl, "wb") as f:
+      pickle.dump(bm25_retriever, f)
       
 
 if __name__ == "__main__":
