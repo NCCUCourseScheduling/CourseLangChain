@@ -2,7 +2,7 @@ import logging, pickle
 import fire
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain.llms.llamacpp import LlamaCpp
+from langchain_community.llms import Ollama
 from utils.prompt import get_prompt
 from langchain.retrievers import EnsembleRetriever
 from dotenv import load_dotenv
@@ -11,7 +11,7 @@ import os
 # remember to add the .env file in order to use Langsmith API
 load_dotenv()
 
-MODAL_PATH = os.getenv("MODEL_PATH")
+MODAL = os.getenv("MODEL")
 
 logger = logging.getLogger("CourseLangchain")
 logger.setLevel(logging.DEBUG)
@@ -28,7 +28,6 @@ class CourseLangChain:
     def __init__(
         self,
         pickleFile="vectorstore.pkl",
-        modelFile=MODAL_PATH,
         cli=False,
     ) -> None:
 
@@ -38,13 +37,8 @@ class CourseLangChain:
 
         with open(pickleFile, "rb") as f:
             retriever: EnsembleRetriever = pickle.load(f)
-
-        model = LlamaCpp(
-            model_path=modelFile,
-            n_gpu_layers=-1,
-            seed=1337, 
-            n_ctx=4096
-        )
+        
+        model = Ollama(model=MODAL, stop=["<|eot_id|>"])
 
         def format_docs(docs):
             return "\n".join(f"- {doc.page_content}" for doc in docs)
