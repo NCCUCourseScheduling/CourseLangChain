@@ -1,6 +1,8 @@
 *.db
 *.csv
 *.pkl
+*.env
+.gitignore
 
 __pycache__/
 vectordb*/
