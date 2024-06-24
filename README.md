@@ -31,6 +31,11 @@ LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
 LANGCHAIN_API_KEY="api-key"
 ```
 
+## Before Run
+```sh
+python chroma_build.py
+```
+
 ## Run
 ```sh
 python main.py
