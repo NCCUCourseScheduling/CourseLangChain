@@ -5,36 +5,50 @@
 Requirements:
 - `python >= 3.11`
 - `data.db` is required
-- model needs to be `gguf`, and place the model in `model/` and specify in the code. Checkout `llamacpp` for more detail.
 - `mamba` or `conda` installed
+- `ollama` installed ([Github](https://github.com/ollama/ollama))
 
 
-### Installation
+## Installation
 ```sh
- CMAKE_ARGS="-DLLAMA_CUDA=on" mamba env create -f environment.yml
+mamba env create -f environment.yml
 ```
-Add prefix or set environment variable to install  `llama-cpp-python`, see [here](https://github.com/abetlen/llama-cpp-python) to learn more.
+
+Add `MODEL` in `.env` to specify your model file
+
+```
+MODEL="your_modal_name"
+```
+
+> [!IMPORTANT]
+> The environment file use cpu version of pytorch, if you have GPUs, install GPU version on your own.
+
+If you want to monitor in LangSmith, add config in the `.env`
+
+```
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+LANGCHAIN_API_KEY="api-key"
+```
 
 ## Run
 ```sh
 python main.py
 ```
 
-### Run with flask
+### Run with streamlit
 ```sh
- python app.py
- ```
-
-### Langsmith
-```sh
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
-LANGCHAIN_API_KEY="your_api_key"
+streamlit run streamlit.py
 ```
-In order to use Langsmith API, you need to create an .env file above.
 
-***
-[Frontend Repository](https://github.com/NCCUCourseScheduling/CourseLangChain-frontend)!
+### Run with fastapi
+```sh
+python app.py
+```
+
+## Frontend Repository
+
+**[CLick me](https://github.com/NCCUCourseScheduling/CourseLangChain-frontend)**
 
 ## Final Report
 Objective, System Architecture, Research Methods, Results, Future Outlook : 
